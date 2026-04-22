@@ -1,0 +1,42 @@
+# ── Virtual environment ───────────────────────────────────────
+venv/
+.env
+
+# ── Python ────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+*.egg-info/
+dist/
+build/
+
+# ── Jupyter (in case notebooks are added later) ───────────────
+.ipynb_checkpoints/
+*.ipynb
+
+# ── HuggingFace cache ─────────────────────────────────────────
+~/.cache/huggingface/
+.cache/
+
+# ── Data — raw and processed CSVs (often too large for git) ───
+data/raw/
+data/processed/
+data/market/
+
+# ── Model checkpoints (can be very large) ─────────────────────
+models/
+
+# ── Results — plots and metrics ───────────────────────────────
+# Comment these out if you want to commit your results
+results/
+
+# ── MacOS ─────────────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+
+# ── IDE ───────────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
