@@ -1,10 +1,10 @@
 """
-01_eda.py
+eda.py
 =========
-Phase 1: Data Collection, Inspection & EDA
+Data Collection, Inspection & EDA
 
 Run:
-    python 01_eda.py
+    python eda.py
 
 Outputs (saved to results/):
     class_distribution.png
@@ -161,15 +161,18 @@ def plot_sentence_lengths(fpb_dfs: dict, fiqa_dfs: dict) -> None:
         df["word_count"] = df["sentence"].str.split().str.len()
 
         sns.violinplot(
-            data=df, x="label_str", y="word_count",
+            data=df, x="label_str", y="word_count", hue="label_str",
             order=LABEL_NAMES, palette=PALETTE, ax=ax, inner="quartile",
+            legend=False,
         )
         ax.set_title(f"{ds_name} (train)")
         ax.set_xlabel("Sentiment Class")
         ax.set_ylabel("Word Count")
 
         for label in LABEL_NAMES:
-            wc = df.loc[df["label_str"] == label, "word_count"]
+            wc = df.loc[df["label_str"] == label, "word_count"].dropna()
+            if len(wc) == 0:
+                continue
             stats_rows.append({
                 "Dataset": ds_name, "Label": label,
                 "Mean": round(wc.mean(), 1), "Median": round(wc.median(), 1),
@@ -380,13 +383,6 @@ def write_summary(fpb_dfs: dict, fiqa_dfs: dict, spy: pd.DataFrame) -> None:
         f"  Up days      : {int(spy['direction'].sum())} ({spy['direction'].mean()*100:.1f}%)",
         f"  Mean return  : {spy['daily_return'].mean()*100:.4f}%",
         "",
-        "KEY TAKEAWAYS",
-        "  - FPB is neutral-heavy (~60-70%): use class_weight='balanced' + macro-F1",
-        "  - Low FPB/FiQA vocab overlap: expect generalization gap across datasets",
-        "  - Most sentences fit in 128 BERT tokens: no truncation concern",
-        "  - SPY up ~55% of days: always-positive baseline for Stage 2 is ~55%",
-        "",
-        "NEXT STEP: python 02_baseline.py",
     ]
 
     out = RESULTS_DIR / "eda_summary.txt"
@@ -401,7 +397,7 @@ def write_summary(fpb_dfs: dict, fiqa_dfs: dict, spy: pd.DataFrame) -> None:
 
 if __name__ == "__main__":
     print("=" * 55)
-    print("Phase 1 — EDA")
+    print("EDA")
     print("=" * 55)
 
     fpb_dfs, fiqa_dfs = load_all()
@@ -413,5 +409,3 @@ if __name__ == "__main__":
     save_splits(fpb_dfs, fiqa_dfs)
     write_summary(fpb_dfs, fiqa_dfs, spy)
 
-    print("\n✅  EDA complete. Check the results/ folder for all plots.")
-    print("    Next: python 02_baseline.py")

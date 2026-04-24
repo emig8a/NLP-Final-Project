@@ -68,7 +68,6 @@ def load_fpb(
         "financial_phrasebank",
         config,
         cache_dir=cache_dir,
-        trust_remote_code=True,
     )
 
     # FPB only ships a single 'train' split — we create val/test manually
@@ -121,15 +120,18 @@ def load_fiqa(
     neg_upper, pos_lower = FIQA_BUCKET_THRESHOLDS
 
     def _process(example):
-        score = float(example.get("score", 0.0))
+        # pauri32/fiqa-2018 uses 'sentiment_score'; fall back to 'score'
+        raw_score = example.get("sentiment_score", example.get("score", None))
+        score = float(raw_score) if raw_score is not None else 0.0
         if score < neg_upper:
             label = 0
         elif score > pos_lower:
             label = 2
         else:
             label = 1
-        text = example.get("sentence") or example.get("text") or ""
-        return {"sentence": _clean_text(text), "label": label}
+        text = example.get("sentence") or example.get("text") or "N/A"
+        text = _clean_text(str(text))
+        return {"sentence": text, "label": label}
 
     if "train" in raw and "test" in raw:
         train_ds = raw["train"].map(_process, remove_columns=raw["train"].column_names)
@@ -339,5 +341,3 @@ if __name__ == "__main__":
 
     spy = fetch_market_data("SPY", save_path="data/market/spy_daily.csv")
     print(f"\nSPY tail:\n{spy.tail(3)}")
-
-    print("\n✅  Smoke test passed.")
